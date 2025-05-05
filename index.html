@@ -1,0 +1,205 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Fashion Store</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+    }
+    header {
+      background-color: #222;
+      color: #fff;
+      padding: 20px;
+      font-size: 28px;
+      text-align: center;
+    }
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 30px;
+      gap: 20px;
+    }
+    .product {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 220px;
+      text-align: center;
+      padding: 15px;
+      transition: transform 0.3s;
+    }
+    .product:hover {
+      transform: scale(1.05);
+    }
+    .product img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+    .product h3 {
+      margin: 10px 0 5px;
+      font-size: 18px;
+    }
+    .product p {
+      font-size: 16px;
+      color: #555;
+    }
+    .product button {
+      margin-top: 10px;
+      padding: 10px 15px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    #cartPage, #thankYou {
+      display: none;
+      text-align: center;
+      padding: 30px;
+    }
+    .cart-item {
+      max-width: 600px;
+      margin: 10px auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #ccc;
+      padding: 10px;
+    }
+    .cart-item img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 6px;
+      margin-right: 10px;
+    }
+    .buttons {
+      margin-top: 20px;
+    }
+    .buttons button {
+      background: #007bff;
+      color: white;
+      padding: 10px 20px;
+      margin: 0 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #thankYou h2 {
+      color: #28a745;
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<header>Fashion Store</header>
+
+<div class="container" id="products"></div>
+
+<div id="cartPage">
+  <h2>Your Cart</h2>
+  <div id="cartItems"></div>
+  <h3 id="totalAmount"></h3>
+  <div class="buttons">
+    <button onclick="goBack()">Back to Shop</button>
+    <button onclick="checkout()">Checkout</button>
+  </div>
+</div>
+
+<div id="thankYou">
+  <h2>Thank You for Coming!</h2>
+  <p>Your total amount was: <strong id="finalAmount"></strong></p>
+  <p>We hope to see you again soon!</p>
+  <div class="buttons">
+    <button onclick="restart()">Back to Home</button>
+  </div>
+</div>
+
+<script>
+  const products = [
+  { name: "Men's T-Shirt", price: 20, image: "https://www.shutterstock.com/image-photo/blank-white-t-shirt-front-260nw-2496500485.jpg" },
+  { name: "Women's Dress", price: 45, image: "https://yourdesignstore.s3.amazonaws.com/uploads/yds/varImages/05ce4b740fcd521f5e69f20c25281662.png" },
+  { name: "Women's Heels", price: 70, image: "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcR3hBFvwL-SwMC0UkktgjAMFuQwRsEqifV4f9_SqQdq69AZ-jDibQNCx5OEfWa-eBhBtSzzBI3g35beOK0fY6peZGsvzMXuby3PO2o8czSXZRT6MQCxjUgLWw" },
+  { name: "Gold Necklace", price: 150, image: "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcTxXnx8a1NGomdXD40ZoU7LE2Kr2HqnxOB_NgTmNHhbEBMIWTm7BDmUd5Q0nO5fnsM6hInufnY-465lWePmYXr84eg1Z55M3R4pDvl51mOpPVIM4xDqvhtm" },
+  { name: "Silver Bracelet", price: 80, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRgyihwehAp3l9QVGfuNdD0UjO3fKKmC5sVuA&s" }
+];
+
+  const productsContainer = document.getElementById('products');
+  const cartPage = document.getElementById('cartPage');
+  const cartItems = document.getElementById('cartItems');
+  const totalAmount = document.getElementById('totalAmount');
+  const thankYou = document.getElementById('thankYou');
+  const finalAmount = document.getElementById('finalAmount');
+
+  let cart = [];
+
+  function showProducts() {
+    products.forEach((p, index) => {
+      const div = document.createElement('div');
+      div.className = 'product';
+      div.innerHTML = `
+        <img src="${p.image}" alt="${p.name}">
+        <h3>${p.name}</h3>
+        <p>$${p.price}</p>
+        <button onclick="addToCart(${index})">Add to Cart</button>
+      `;
+      productsContainer.appendChild(div);
+    });
+  }
+
+  function addToCart(index) {
+    cart.push(products[index]);
+    showCart();
+  }
+
+  function showCart() {
+    productsContainer.style.display = 'none';
+    cartPage.style.display = 'block';
+    cartItems.innerHTML = '';
+    let total = 0;
+    cart.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'cart-item';
+      div.innerHTML = `
+        <img src="${item.image}" alt="${item.name}">
+        <span><strong>${item.name}</strong> - $${item.price}</span>
+      `;
+      cartItems.appendChild(div);
+      total += item.price;
+    });
+    totalAmount.textContent = "Total: $" + total;
+  }
+
+  function checkout() {
+    cartPage.style.display = 'none';
+    thankYou.style.display = 'block';
+    let total = cart.reduce((sum, item) => sum + item.price, 0);
+    finalAmount.textContent = "$" + total;
+  }
+
+  function goBack() {
+    cartPage.style.display = 'none';
+    productsContainer.style.display = 'flex';
+  }
+
+  function restart() {
+    cart = [];
+    thankYou.style.display = 'none';
+    productsContainer.style.display = 'flex';
+    cartItems.innerHTML = '';
+  }
+
+  showProducts();
+</script>
+
+</body>
+</html>
